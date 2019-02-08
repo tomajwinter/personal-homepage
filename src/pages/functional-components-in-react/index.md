@@ -13,107 +13,117 @@ In much the same way that it’s sometimes easy to over-reach for a Store implem
 
 Take the example below. A simple, presentational component which renders a title, subtitle and some further content. For our purposes it’s been called a Section.
 
-    import React from 'react';
-    import classNames from 'classnames';
+```javascript
+import React from 'react';
+import classNames from 'classnames';
 
-    class Section extends React.Component {
-      static propTypes = {
-        title: React.PropTypes.string.isRequired,
-        subtitle: React.PropTypes.string,
-        children: PropTypes.node
-      }
+class Section extends React.Component {
+  static propTypes = {
+    title: React.PropTypes.string.isRequired,
+    subtitle: React.PropTypes.string,
+    children: PropTypes.node
+  }
 
-    title = () => {
-      return (
-        <h2 className='section__title'>{ props.title }</h2>
-      );
-    }
+title = () => {
+  return (
+    <h2 className='section__title'>{ props.title }</h2>
+  );
+}
 
-    subtitle = () => {
-      if (!this.props.subtitle) { return null; }
+subtitle = () => {
+  if (!this.props.subtitle) { return null; }
 
-      return (
-        <p className='section__subtitle'>{ props.subtitle }</p>
-      );
-    }
+  return (
+    <p className='section__subtitle'>{ props.subtitle }</p>
+  );
+}
 
-    render() {
-      return (
-        <div className={ classNames(props.className, 'section') }>
-          { this.title() }
-          { this.subtitle() }
-          { props.children }
-        </div>
-      );
-    }
+render() {
+  return (
+    <div className={ classNames(props.className, 'section') }>
+      { this.title() }
+      { this.subtitle() }
+      { props.children }
+    </div>
+  );
+}
 
-    export default Section;
+export default Section;
+```
 
 There’s nothing about the above component which hinges on any implementation of state or utilises lifecycle methods to respond to change. It’s therefore a perfect candidate for being written as a straightforward Javascript function. The first thing to define is the component.
 
-    import React from 'react';
-    import classNames from 'classnames';
+```javascript
+import React from 'react'
+import classNames from 'classnames'
 
-    let Section = (props) =>
-      <div className={ classNames(props.className, 'section') }>
-        ...
-      </div>
-    ;
-
-    export default Section;
+let Section = props => (
+  <div className={classNames(props.className, 'section')}>...</div>
+)
+export default Section
+```
 
 The render method has effectively been replaced by using the [ES6 Arrow Function’s implicit return](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/Arrow_functions). This Section component is now a pure Javascript function. Likewise the functions that return a title and subtitle can be rewritten
 
-    const title = (props) => {
-      return <h2 className='section__title'>{ props.title }</h2>;
-    }
+```javascript
+const title = props => {
+  return <h2 className="section__title">{props.title}</h2>
+}
 
-    const subtitle = (props) => {
-      if (!props.subtitle) { return null; }
+const subtitle = props => {
+  if (!props.subtitle) {
+    return null
+  }
 
-      return <p className='section__title'>{ props.subtitle }</p>;
-    }
+  return <p className="section__title">{props.subtitle}</p>
+}
+```
 
 Note that the relevant props object needs to be passed into these additional functions rather than being with the scope of the class and available by calling this.props.
 
 In addition the Section has its propTypes defined — both .propTypes and .defaultProps can be set as properties in a functional component.
 
-    Section.propTypes = {
-      title:    React.PropTypes.string.isRequired,
-      subtitle: React.PropTypes.string,
-      children: React.PropTypes.node
-    };
+```javascript
+Section.propTypes = {
+  title: React.PropTypes.string.isRequired,
+  subtitle: React.PropTypes.string,
+  children: React.PropTypes.node,
+}
+```
 
 The entire rewritten code is then a stateless Javascript component
 
-    import React from 'react';
-    import classNames from 'classnames';
+```javascript
+import React from 'react'
+import classNames from 'classnames'
 
-    const title = (props) => {
-      return <h2 className='section__title'>{ props.title }</h2>;
-    }
+const title = props => {
+  return <h2 className="section__title">{props.title}</h2>
+}
 
-    const subtitle = (props) => {
-      if (!props.subtitle) { return null; }
+const subtitle = props => {
+  if (!props.subtitle) {
+    return null
+  }
 
-    return <p className='section__title'>{ props.subtitle }</p>;
-    }
+  return <p className="section__title">{props.subtitle}</p>
+}
 
-    let Section = (props) =>
-      <div className={ classNames(props.className, 'section') }>
-        { title(props) }
-        { subtitle(props) }
-        { props.children }
-      </div>
-    ;
+let Section = props => (
+  <div className={classNames(props.className, 'section')}>
+    {title(props)}
+    {subtitle(props)}
+    {props.children}
+  </div>
+)
+Section.propTypes = {
+  title: React.PropTypes.string.isRequired,
+  subtitle: React.PropTypes.string,
+  children: React.PropTypes.node,
+}
 
-    Section.propTypes = {
-      title:    React.PropTypes.string.isRequired,
-      subtitle: React.PropTypes.string,
-      children: React.PropTypes.node
-    };
-
-    export default Section;
+export default Section
+```
 
 The above represents a considerably less cluttered, pure Javascript implementation of the Section component.[ I agree with Jack Franklin’s suggestion](http://javascriptplayground.com/blog/2017/03/functional-stateless-components-react/) that one of the main benefits of a functional stateless component ‘acts as a visual signal’
 
@@ -127,13 +137,13 @@ Since becoming familiar with this pattern for writing components I’ve endeavou
 
 ## Further Reading
 
-- [\*Presentational and Container Components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)\* — Dan Abramov
+- [Presentational and Container Components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) — Dan Abramov
 
-- [\*Functional and Class Components](https://facebook.github.io/react/docs/components-and-props.html#functional-and-class-components)\* — React Documentation
+- [Functional and Class Components](https://facebook.github.io/react/docs/components-and-props.html#functional-and-class-components) — React Documentation
 
-- [\*React Functional Stateless Components](https://hackernoon.com/react-stateless-functional-components-nine-wins-you-might-have-overlooked-997b0d933dbc)\*—Cory House
+- [React Functional Stateless Components](https://hackernoon.com/react-stateless-functional-components-nine-wins-you-might-have-overlooked-997b0d933dbc)—Cory House
 
-- [\*Functional Stateless Components](http://javascriptplayground.com/blog/2017/03/functional-stateless-components-react/)\* — Jack Franklin
+- [Functional Stateless Components](http://javascriptplayground.com/blog/2017/03/functional-stateless-components-react/) — Jack Franklin
 
 ## Background noise
 

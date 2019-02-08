@@ -21,33 +21,38 @@ The below example lays out the wrapper’s implementation of a get request. Just
 
 - It returns a promise (wrapping the same approach as axios)
 
+```javascript
   import axios from 'axios';
 
   class HTTPWrapper {
-  get = ({ url, config } = {}) => new Promise((resolve, reject) => {
-  axios
-  .get(url, config)
-  .then((response) => {
-  resolve(response);
-  })
-  .catch((errors) => {
-  reject(errors);
-  });
+    get = ({ url, config } = {}) => new Promise((resolve, reject) => {
+      axios
+        .get(url, config)
+        .then((response) => {
+          resolve(response);
+        })
+        .catch((errors) => {
+          reject(errors);
+        });
   });
 
   export default new HTTPWrapper();
+```
 
 We will also build a class that handles API calls by making use of this HTTPWrapper . From our component’s perspective, it only need know that it is calling a function, with an ID, that will return some data. This intermediate UserAPI class sits between our component and HTTPWrapper and could look something like:
 
-    import HTTPWrapper from '../utils/HTTPWrapper';
+```javascript
+import HTTPWrapper from '../utils/HTTPWrapper'
 
-    class UserAPI {
-      getDataForUser = id => HTTPWrapper.get({
-        url: `my/external/service/v1/users/${id}`
-      })
-    }
+class UserAPI {
+  getDataForUser = id =>
+    HTTPWrapper.get({
+      url: `my/external/service/v1/users/${id}`,
+    })
+}
 
-    export default new UserAPI();
+export default new UserAPI()
+```
 
 These two extra classes can feel like additional boilerplate — but as well as keeping code concise and with single, smaller responsibilities it also will make it easier to test interactions across (and beyond) our app.
 
@@ -55,44 +60,47 @@ These two extra classes can feel like additional boilerplate — but as well as 
 
 UserDetails is designed to fetch data about a user and return a greeting message. We want to ensure that during the time a request is being undertaken it displays something meaningful. Then, once it has data available, it updates the UI.
 
-    import React, { Component } from 'react';
-    import PropTypes from 'prop-types';
-    import UserAPI from '../../api/UserAPI';
+```javascript
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import UserAPI from '../../api/UserAPI'
 
-    class UserDetails extends Component {
-      static propTypes = {
-        userId: PropTypes.string.isRequired
-      };
+class UserDetails extends Component {
+  static propTypes = {
+    userId: PropTypes.string.isRequired,
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-          user: null,
-        };
-      }
-
-    componentDidMount() {
-        // get some data
-      }
-
-    displayUser = () => {
-        const { user } = this.state;
-        const { name } = user;
-        return <span>{`Hello ${name}!`}</span>
-      }
-
-    loading = () => <span>Loading...</span>
-
-    render() {
-        const { user } = this.state;
-        return user ? this.displayUser() : this.loading();
-      }
+  constructor(props) {
+    super(props)
+    this.state = {
+      user: null,
     }
+  }
 
-    export default UserDetails;
+  componentDidMount() {
+    // get some data
+  }
+
+  displayUser = () => {
+    const { user } = this.state
+    const { name } = user
+    return <span>{`Hello ${name}!`}</span>
+  }
+
+  loading = () => <span>Loading...</span>
+
+  render() {
+    const { user } = this.state
+    return user ? this.displayUser() : this.loading()
+  }
+}
+
+export default UserDetails
+```
 
 A common place for a component to make requests for data is in the componentDidMount lifecycle method. Because this request won’t be instaneous it makes sense for us to use an asyncronous pattern. One approach that uses a Promise returned from our UserAPI.getDataForUser function is
 
+```javascript
     componentDidMount() {
         const { userId } = this.props;
         UserAPI.getDataForUser(userId)
@@ -105,9 +113,11 @@ A common place for a component to make requests for data is in the componentDidM
             // Handle a failed request
           })
       }
+```
 
 This works well and allows us to update component state on a successful or unsuccessful request. There is also an alternative implementation of asynchronous behaviour that utilises async/await.
 
+```javascript
     async componentDidMount() {
         try {
           const { userId } = this.props;
@@ -119,6 +129,7 @@ This works well and allows us to update component state on a successful or unsuc
           // Handle a failed request
         }
       }
+```
 
 Both of these approaches will allow our component to display a loading state until the request for data has concluded, and at that point change to welcome the user. Both also allow us to catch any problems and display a meaningful error state to the end user whilst passing information onto an error service.
 
@@ -140,36 +151,40 @@ b) Our component makes a request to the external API with expected parameters
 
 c) Our component’s UI updates based the external response
 
-    import React from 'react';
-    import { mount } from 'enzyme';
-    import UserAPI from '../../api/UserAPI';
-    import UserDetails from './UserDetails';
+```javascript
+import React from 'react'
+import { mount } from 'enzyme'
+import UserAPI from '../../api/UserAPI'
+import UserDetails from './UserDetails'
 
-    const mockedApiRequest = jest.fn(() => Promise.resolve({
-      name: 'Username',
-    }));
+const mockedApiRequest = jest.fn(() =>
+  Promise.resolve({
+    name: 'Username',
+  })
+)
 
-    const props = {
-      userId: '1',
-    };
+const props = {
+  userId: '1',
+}
 
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
+afterEach(() => {
+  jest.clearAllMocks()
+})
 
-    it('fetches from external API successfully', async () => {
-      UserAPI.getDataForUser = mockedApiRequest;
-      const wrapper = mount(<UserDetails {...props} />);
-      expect(mockedApiRequest).toBeCalledTimes(1);
-      expect(mockedApiRequest).toBeCalledWith('1');
-      await mockedApiRequest;
-      expect(
-        wrapper
-          .find('span')
-          .last()
-          .text()
-        ).toEqual('Hello Username!');
-    });
+it('fetches from external API successfully', async () => {
+  UserAPI.getDataForUser = mockedApiRequest
+  const wrapper = mount(<UserDetails {...props} />)
+  expect(mockedApiRequest).toBeCalledTimes(1)
+  expect(mockedApiRequest).toBeCalledWith('1')
+  await mockedApiRequest
+  expect(
+    wrapper
+      .find('span')
+      .last()
+      .text()
+  ).toEqual('Hello Username!')
+})
+```
 
 Using [enzyme](https://airbnb.io/enzyme/) our component is mounted which will cause our componentDidMount to be invoked (although, as of Enzyme 3, shallow rendering components does also invoke React lifecycle methods). We have stubbed the UserAPI.getDataForUser function with a jest mock that returns a Promise and a response we have modelled on our API.
 
