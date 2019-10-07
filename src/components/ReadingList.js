@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'gatsby'
 
 // Import typefaces
 import 'typeface-montserrat'
@@ -11,7 +12,7 @@ class ReadingList extends React.Component {
         <a href={url} target="_blank">
           {title}
         </a>{' '}
-        by {author}
+        by {author}.
       </li>
     )
   }
@@ -19,32 +20,34 @@ class ReadingList extends React.Component {
   render() {
     return (
       <div>
-        <h2>2019 Reading</h2>
+        <h2>Bookclub</h2>
         <ul>
+          <Link to="/bookclub">
+            {this.linkItem(
+              'https://pragprog.com/book/mnee/release-it',
+              'Release It!',
+              'Michael T. Nygard'
+            )}
+          </Link>
+          {this.linkItem(
+            'https://www.poodr.com/',
+            'Practical Object-Oriented Design',
+            'Sandi Metz'
+          )}
           {this.linkItem(
             'https://dataintensive.net/',
             'Designing Data Intensive Applications',
             'Martin Kleppmann'
           )}
           {this.linkItem(
+            'https://www.manning.com/books/grokking-algorithms',
+            'Grokking Algorithms',
+            'Aditya Y. Bhargava'
+          )}
+          {this.linkItem(
             'http://shop.oreilly.com/product/0636920028529.do',
             'Doing Data Science',
             "Cathy O'Neil & Rachel Schutt"
-          )}
-          {this.linkItem(
-            'https://weaponsofmathdestructionbook.com/',
-            'Weapons of Math Destruction ',
-            "Cathy O'Neil"
-          )}
-          {this.linkItem(
-            'https://automatetheboringstuff.com/',
-            'Automate the Boring Stuff',
-            'Al Sweigart'
-          )}
-          {this.linkItem(
-            'http://bwlampson.site/33-Hints/Acrobat.pdf',
-            'Hints for Computer System Design',
-            'Butler W. Lampson'
           )}
         </ul>
       </div>
